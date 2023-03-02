@@ -93,6 +93,10 @@
             </td>
             <td colspan='1'>{{finqueue.price}} บาท</td>
           </tr>
+          <tr>
+            <td colspan="3"></td>
+            <td>ยอดขาย{{sumPrice}} บาท</td>
+          </tr>
         </table>
       </section>
     </div>
@@ -182,10 +186,9 @@
       },
 
       computed: {
-        // sumPrice() {
-        //   return this.item.reduce((total, current) => total + parseInt(current.quantity * current.price), 0);
-        // },
-
+        sumPrice() {
+          return this.finishedqueues.reduce((total, current) => total + current.price, 0);
+        }
       },
     });
   </script>

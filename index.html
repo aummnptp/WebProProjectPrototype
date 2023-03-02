@@ -215,6 +215,8 @@
         show_modal: false,
         usernow: [],
         stocks: [],
+        pageDetail: [],
+
       },
 
       methods: {
@@ -328,7 +330,8 @@
         },
 
         godetailPage(product) {
-          const myJSON = JSON.stringify({...product});
+          this.pageDetail.push({...product});
+          const myJSON = JSON.stringify(this.pageDetail);
           localStorage.setItem("detailPage", myJSON);
           // localStorage.setItem("detailPage", {...product});
           window.location.href = "./detail.html";

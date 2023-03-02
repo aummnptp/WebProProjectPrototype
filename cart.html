@@ -156,6 +156,8 @@
             window.location.href = "index.html";
           }
           else if (this.user[0].status) {
+
+
             this.queues.push({user: this.user[0].username, price: this.sumPrice, item: [...this.cart]});
             const myJSON = JSON.stringify(this.queues);
             localStorage.setItem("queue", myJSON);

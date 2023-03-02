@@ -84,7 +84,7 @@
               <footer class="card-footer">
                 <a class="card-footer-item" @click="addNum(item)">+</a>
                 <a class="card-footer-item" @click="reduceNum(item)">-</a>
-                <a class="card-footer-item has-text-danger" @click="removeCart(index)">Delete</a>
+                <a class="card-footer-item has-text-danger" @click="removeCart(index,item)">Delete</a>
               </footer>
             </div>
             <!--           <a class="button is-success mt-3" style="width: 100%" @click="goCheckout">Checkout</a> -->
@@ -116,7 +116,8 @@
         }
 
         myJSON = JSON.parse(localStorage.getItem("detailPage"));
-        this.itemDetail.push(myJSON);
+        // this.itemDetail.push(myJSON);
+        this.itemDetail = myJSON.slice();
 
         // const inCart = this.cart.findIndex(
         //   (val) => val.id === this.itemDetail[0].id
@@ -208,11 +209,23 @@
           }
         },
 
-        removeCart(index) {
+        removeCart(index, item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          this.itemDetail[0].stock += this.cart[checkCart].quantity;
           this.cart.splice(index, 1);
 
           const myJSON = JSON.stringify(this.cart);
           localStorage.setItem("localcart", myJSON);
+
+
+
+
+
+
+
+
         },
 
         // addNum(index) {
@@ -242,6 +255,7 @@
             this.cart[checkCart].quantity++;
             this.products[checkStock].stock--;
             this.itemDetail[0].stock = this.products[checkStock].stock;
+
             myJSON = JSON.stringify(this.products);
             localStorage.setItem("stock", myJSON);
 
