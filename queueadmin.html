@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <title>Queue</title>
+</head>
+
+<body>
+  <div id="app">
+    <nav class="navbar is-success" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item">
+          <h1 class="is-size-4 has-text-weight-semibold">QueueAdmin</h1>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="./index.html" class="navbar-item">Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <!--     คิวที่กำลังทำ -->
+    <div class="modal-card" style="max-width: 960px; width: 90%">
+      <section class="modal-card-body">
+        <table id="order-table" style="width: 100%" class="table is-bordered">
+          <tr>
+            <th class="is-selected" colspan="5" style="text-align:center; font-size: 1.5em;">Processing Queue</th>
+          </tr>
+          <tr>
+            <th colspan="1">คิว</th>
+            <th colspan="1">ชื่อ</th>
+            <th colspan="1">รายการ</th>
+            <th colspan="1">ราคารวม</th>
+            <th colspan="1">จัดการ</th>
+          </tr>
+          <!--           <tr v-for='info in test'>
+            <td colspan="1">{{info.id}}</td>
+            <td colspan="1">{{info.name}}</td>
+            <td colspan="1">{{info.price * info.quantity}}</td>
+          </tr> -->
+          <!--           <tr class="is-selected">
+            <td colspan="1">5</td>
+            <td colspan="1" v-for='us in usernow'>{{us.username}}</td>
+            <td colspan='1'></td>
+          </tr> -->
+          <!--           test -->
+          <tr v-for="(queue, index) in queues">
+            <td colspan="1">{{index+1}}</td>
+            <td colspan="1">{{queue.user}}</td>
+            <td colspan='1'>
+              <div class="select">
+                <select>
+                  <option v-for="item in queue.item">{{item.name}} x{{item.quantity}}</option>
+                </select>
+              </div>
+            </td>
+            <td colspan='1'>{{queue.price}} บาท</td>
+            <td colspan='1' @click="finishQueue(queue, index)" style="text-align: center;"><a
+                class="button is-info">Finish This</a></td>
+          </tr>
+        </table>
+      </section>
+    </div>
+
+    <!--     คิวที่เสร็จแล้ว -->
+    <div class="modal-card" style="max-width: 960px; width: 90%">
+      <section class="modal-card-body">
+        <table id="order-table" style="width: 100%" class="table is-bordered">
+          <tr>
+            <th class="is-danger" colspan="4" style="text-align:center; font-size: 1.5em;">Finished Queue</th>
+          </tr>
+          <tr>
+            <th colspan="1">คิว</th>
+            <th colspan="1">ชื่อ</th>
+            <th colspan="1">รายการ</th>
+            <th colspan="1">ราคารวม</th>
+          </tr>
+          <tr v-for='(finqueue,index) in finishedqueues.slice().reverse()'>
+            <td colspan="1">{{index+1}}</td>
+            <td colspan="1">{{finqueue.user}}</td>
+            <td colspan='1'>
+              <div class="select">
+                <select>
+                  <option v-for="item in finqueue.item">{{item.name}} x{{item.quantity}}</option>
+                </select>
+              </div>
+            </td>
+            <td colspan='1'>{{finqueue.price}} บาท</td>
+          </tr>
+        </table>
+      </section>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        shopName: "NoName Shop",
+        itemDetail: [],
+        cart: [],
+        queues: [],
+        finishedqueues: [],
+        test: [
+          {
+            id: 1,
+            name: "Tonnam",
+            price: 50,
+            quantity: 1,
+          },
+          {
+            id: 2,
+            name: "Pong",
+            price: 50,
+            quantity: 3,
+          },
+          {
+            id: 3,
+            name: "Pun",
+            price: 50,
+            quantity: 4,
+          },
+        ],
+
+        show_modal: false,
+      },
+
+      created() {
+
+        myJSON = JSON.parse(localStorage.getItem("queue"));
+        if (myJSON !== null) {
+          this.queues = myJSON.slice();
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("finishedqueue"));
+        if (myJSON !== null) {
+          this.finishedqueues = myJSON.slice();
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("detailPage"));
+        if (myJSON !== null) {
+          this.itemDetail.push(myJSON);
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("localcart"));
+        if (myJSON !== null) {
+          this.cart = myJSON.slice();
+        }
+
+        myUser = JSON.parse(localStorage.getItem("usernpass"));
+        if (myJSON !== null) {
+          this.user = myUser.slice();
+        }
+
+        myUserN = JSON.parse(localStorage.getItem("unpnow"));
+        if (myJSON !== null) {
+          this.usernow = myUserN.slice();
+        }
+      },
+
+      methods: {
+
+        finishQueue(queue, index) {
+          this.finishedqueues.push({...queue});
+          this.queues.splice(index, 1);
+
+
+          myJSON = JSON.stringify(this.queues);
+          localStorage.setItem("queue", myJSON);
+          myJSON = JSON.stringify(this.finishedqueues);
+          localStorage.setItem("finishedqueue", myJSON);
+
+        },
+      },
+
+      computed: {
+        // sumPrice() {
+        //   return this.item.reduce((total, current) => total + parseInt(current.quantity * current.price), 0);
+        // },
+
+      },
+    });
+  </script>
+  <script src="./data.js"></script>
+</body>
+
+</html>

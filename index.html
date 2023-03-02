@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>replit</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+
+<body>
+  <div id="app">
+    <nav class="navbar is-transparent">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="#">
+          <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox"
+            width="112" height="28">
+        </a>
+        <div class="navbar-burger" data-target="navbarExampleTransparentExample">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <div id="navbarExampleTransparentExample" class="navbar-menu">
+        <!--         <div class="navbar-start">
+          <a class="navbar-item" href="#">
+            Home
+          </a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" href="https://bulma.io/documentation/overview/start/">
+              Docs
+            </a>
+            <div class="navbar-dropdown is-boxed">
+              <a class="navbar-item" href="https://bulma.io/documentation/overview/start/">
+                Overview
+              </a>
+              <a class="navbar-item" href="https://bulma.io/documentation/overview/modifiers/">
+                Modifiers
+              </a>
+              <a class="navbar-item" href="https://bulma.io/documentation/columns/basics/">
+                Columns
+              </a>
+              <a class="navbar-item" href="https://bulma.io/documentation/layout/container/">
+                Layout
+              </a>
+              <a class="navbar-item" href="https://bulma.io/documentation/form/general/">
+                Form
+              </a>
+              <hr class="navbar-divider">
+              <a class="navbar-item" href="https://bulma.io/documentation/elements/box/">
+                Elements
+              </a>
+              <a class="navbar-item is-active" href="https://bulma.io/documentation/components/breadcrumb/">
+                Components
+              </a>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="field is-grouped">
+              <p class="control">
+                <a href="./queueadmin.html" class="button is-primary" v-if="status_log && usernow[0].role === 'admin'">
+                  <span>QueueAdmin</span>
+                </a>
+                <a href="./admin.html" class="button is-primary" v-if="status_log && usernow[0].role === 'admin'">
+                  <span>ItemStock</span>
+                </a>
+                <a href="./queue.html" class="button is-warning" @click="">
+                  <span>Queue</span>
+                </a>
+                <a href="./cart.html" class="button is-link" @click="">
+                  <span>cart</span>
+                </a>
+                <a class="button is-primary" @click="showModal()" v-if="!status_log">
+                  <span>Login</span>
+                </a>
+                <span class="tag is-large is-primary is-light" v-show="usernow[0].status === true"
+                  v-for="us in usernow">{{us.username}}</span>
+                <a class="button is-danger" @click="login()" v-if="status_log">
+                  <span>Logout</span>
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!--     Modal-Login -->
+    <div id="log" class="modal">
+      <div class="modal-background" @click="showModal()"></div>
+      <form class="modal-content">
+        <div class="container">
+          <span @click="showModal()" class="close" title="Close Modal">&times;</span><br>
+          <label for="uname"><b>Username</b></label>
+          <input type="text" placeholder="Enter Username" class="input" v-model="uname" required>
+
+          <label for="psw"><b>Password</b></label>
+          <input type="password" placeholder="Enter Password" class="input" v-model="psw" required>
+
+          <a class="button is-primary" @click="login(), showModal()">Login</a>
+        </div>
+      </form>
+    </div>
+
+    <!--   hero -->
+    <section class="hero is-primary">
+      <div class="hero-body">
+        <p class="title">
+          Primary hero
+        </p>
+        <p class="subtitle">
+          Primary subtitle
+        </p>
+      </div>
+    </section>
+    <!---------------------------------------------------- Main Container ---------------------------------------------------------------------------->
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <!---------------------------------------------- Column แสดงสินค้า ---------------------------------------------------------------------------->
+          <div class="column is-four-fifths">
+            <h3 class="title has-text-centered is-size-4">Our Products</h3>
+            <div class="is-multiline columns is-variable is-2">
+              <div class="card column is-one-quarter" style="margin: 0 2em 2em 0;" v-for="(product,index) in products">
+                <div class="card-image-has-text-centered px-6">
+                  <p>คงเหลือ: {{product.stock}} </p>
+                  <figure class="image is-square">
+                    <img :src="product.image" alt="product-img">
+                  </figure>
+                </div>
+                <div class="card-content">
+                  <p> ฿{{product.price}}</p>
+                  <p class="title issize-5"> {{product.name}}</p>
+                </div>
+                <footer class="card-footer">
+                  <p class="card-footer-item">
+                    <a class="has-text-grey" @click="godetailPage(product)">viewproduct</a>
+                  </p>
+                  <p class="card-footer-item">
+                    <a class="has-text-grey" @click="addtoCart(product)">addToCart</a>
+                  </p>
+                </footer>
+              </div>
+            </div>
+          </div>
+          <!----------------------------------------------column ตะกร้า ------>
+          <div class="column ">
+            <h3 class="title has-text-centered is-size-4">Cart</h3>
+            <h1 class="subtitle">Total {{sumPrice}} บาท</h1>
+            <div class="card" v-for="(item, index) in cart">
+              <header class="card-header">
+                <p class="card-header-title">
+                  {{item.name}}
+                </p>
+                <a href="#" class="card-header-icon" aria-label="more options">
+                  <span class="icon">
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </a>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <img :src="item.image" alt="Placeholder image" />
+                  {{item.quantity}}
+                </div>
+              </div>
+              <footer class="card-footer">
+                <a class="card-footer-item" @click="addNum(item)">+</a>
+                <a class="card-footer-item" @click="reduceNum(item)">-</a>
+                <a class="card-footer-item has-text-danger" @click="removeCart(index)">Delete</a>
+              </footer>
+            </div>
+            <a class="button is-success mt-3" style="width: 100%" @click="goCart">Cart</a>
+          </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>Bulma</strong> by <a href="https://jgthms.com">Jeremy Thomas</a>. The source code is licensed
+          <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+          is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+        </p>
+      </div>
+  </div>
+  </footer>
+  </div>
+  <!--
+  This script places a badge on your repl's full-browser view back to your repl's cover
+  page. Try various colors for the theme: dark, light, red, orange, yellow, lime, green,
+  teal, blue, blurple, magenta, pink!
+  -->
+  <script src="./data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        shopName: "NoName Shop",
+        itemDetail: [],
+        products: products,
+        cart: [],
+        uname: '',
+        psw: '',
+        ro: '',
+        user: [],
+        status_log: false,
+        show_modal: false,
+        usernow: [],
+        stocks: [],
+      },
+
+      methods: {
+        addtoCart(product) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === product.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === product.id
+          );
+
+          if (checkCart == -1 && this.products[checkStock].stock != 0) {
+            this.cart.push({...product, quantity: 1});
+            this.products[checkStock].stock--;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+          else if (this.cart[checkCart].quantity < this.cart[checkCart].stock) {
+            this.cart[checkCart].quantity++;
+            this.products[checkStock].stock--;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        addNum(item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === item.id
+          );
+          console.log(checkStock)
+          if (this.cart[checkCart].quantity < this.cart[checkCart].stock) {
+            this.cart[checkCart].quantity++;
+            this.products[checkStock].stock--;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        reduceNum(item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === item.id
+          );
+          console.log(checkStock)
+          if (this.cart[checkCart].quantity > this.products[checkStock].stock) {
+            this.cart[checkCart].quantity--;
+            this.products[checkStock].stock++;
+
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+          else if (this.cart[checkCart].quantity <= this.products[checkStock].stock && this.cart[checkCart].quantity > 1) {
+            this.cart[checkCart].quantity--;
+            this.products[checkStock].stock++;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        removeCart(index) {
+          const checkStock = this.products.findIndex(
+            (val) => val.id === this.cart[index].id
+          );
+          this.products[checkStock].stock += this.cart[index].quantity;
+
+          this.cart.splice(index, 1);
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        godetailPage(product) {
+          const myJSON = JSON.stringify({...product});
+          localStorage.setItem("detailPage", myJSON);
+          // localStorage.setItem("detailPage", {...product});
+          window.location.href = "./detail.html";
+        },
+
+        showModal() {
+          var modal = document.getElementById('log');
+          if (modal.style.display === 'block') {
+            modal.style.display = 'none'
+          }
+          else {
+            modal.style.display = 'block'
+          }
+        },
+
+        login() {
+          const checkUser = this.user.findIndex(
+            (val) => val.username === this.uname
+          );
+          const checkUserStatus = this.user.findIndex(
+            (val) => val.username === this.usernow[0].username
+          );
+
+          // Admin
+          if (this.uname === 'Bob' && this.psw != '' && this.status_log === false) {
+            this.status_log = true
+            console.log(checkUserStatus)
+            if (checkUser == -1) {
+              this.user.push({
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'admin'
+              })
+            }
+
+            if (this.usernow.length == 0) {
+              this.usernow.push({
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'admin'
+              })
+            }
+
+            else {
+              this.usernow.splice(0, 1, {
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'admin'
+              })
+              this.user[checkUserStatus].status = true
+            }
+          }
+
+          // LogIn
+          else if (this.uname != '' && this.psw != '' && this.status_log === false) {
+            this.status_log = true
+            console.log(checkUserStatus)
+            if (checkUser == -1) {
+              this.user.push({
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'customer'
+              })
+            }
+
+            if (this.usernow.length == 0) {
+              this.usernow.push({
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'customer'
+              })
+            }
+
+            else {
+              this.usernow.splice(0, 1, {
+                username: this.uname,
+                password: this.psw,
+                status: this.status_log,
+                role: 'customer'
+              })
+              this.user[checkUserStatus].status = true
+            }
+          }
+
+          else if (this.uname === '' || this.psw === '') {
+            alert('กรอกให้ครบดิ๊!!!!!!!!!')
+          }
+
+          // LogOut
+          else if (this.usernow[0].status === true) {
+            this.usernow[0].status = false
+            this.user[checkUserStatus].status = false
+            this.uname = ''
+            this.psw = ''
+            this.status_log = false
+          }
+
+          const myUser = JSON.stringify(this.user)
+          localStorage.setItem('usernpass', myUser)
+
+          const myUserN = JSON.stringify(this.usernow)
+          localStorage.setItem('unpnow', myUserN)
+        },
+
+        goCart() {
+          window.location.href = "cart.html";
+        },
+      },
+
+      computed: {
+        sumPrice() {
+          return this.cart.reduce((total, current) => total + parseInt(current.quantity * current.price), 0);
+        },
+      },
+
+      created() {
+        myUser = JSON.parse(localStorage.getItem("usernpass"));
+        if (myUser != null) {
+          this.user = myUser.slice();
+        }
+        // myUser = JSON.parse(localStorage.getItem("usernpass"));
+        //   if (myUser != null) {
+        //     this.status_log = myUser.slice();
+        //   }ไอนาย
+
+        myUserN = JSON.parse(localStorage.getItem("unpnow"));
+        if (myUserN != null) {
+          this.usernow = myUserN.slice();
+          this.status_log = this.usernow[0].status;
+          this.uname = this.usernow[0].username;
+          this.psw = this.usernow[0].password;
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("localcart"));
+        if (myJSON != null) {
+          this.cart = myJSON.slice();
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("stock"));
+        if (myJSON != null) {
+          this.products = myJSON.slice();
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("stock"));
+        if (myJSON != null) {
+          this.stocks = myJSON.slice()
+        }
+      },
+    });
+  </script>
+  <script src="https://replit.com/public/js/replit-badge-v2.js" theme="dark" position="bottom-right"></script>
+
+  <script src="./data.js"></script>
+
+</body>
+
+</html>

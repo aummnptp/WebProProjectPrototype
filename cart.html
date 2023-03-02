@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <nav class="navbar is-success" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item">
+          <h1 class="is-size-4 has-text-weight-semibold">My Cart</h1>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="./index.html" class="navbar-item">Home</a>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="field is-grouped">
+            <p class="control">
+              <a href="./queue.html" class="button is-warning" @click="">
+                <span>Queue</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h1 class="title">My Cart</h1>
+          <h1 class="subtitle">ราคารวมทั้งหมด {{sumPrice}} บาท</h1>
+          <a class="button is-warning mt-3" style="width: 100%; margin-bottom: 1em;" @click="putQueue"
+            v-show="this.cart.length !== 0">Queue</a>
+          <a class="button is-warning mt-3" style="width: 100%; margin-bottom: 1em;" href="index.html"
+            v-show="this.cart.length === 0">คุณไม่มีสินค้าในตะกร้า กลับไปช็อปปิ้ง</a>
+          <div class="box has-background" v-for="(item,index) in cart">
+            <article class="media">
+              <div class="media-left">
+                <figure class="image is-128x128">
+                  <img :src="item.image">
+                </figure>
+              </div>
+              <div class="media-content">
+
+                <div class="content">
+                  <h1 class="title">{{item.name}}</h1>
+                  <h2 class="subtitle is-5"> ฿ {{item.price}}</h2>
+                  <div class="level">
+                    <div class="level-left">
+                      <p class="level-item">x{{item.quantity}}</p>
+                    </div>
+                    <div class="level-right">
+                      <p class="level-item">ทั้งหมด ฿{{item.quantity*item.price}}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <button class="button is-success is-light" @click="addNum(index)">+</button>
+                    <button class="button is-warning is-light" @click="reduceNum(index)">-</button>
+                    <button class="button is-danger is-light" @click="removeCart(index)">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        shopName: "NoName Shop",
+        itemDetail: [],
+        cart: [],
+        queues: [],
+        user: [],
+
+        show_modal: false,
+      },
+
+      created() {
+        myJSON = JSON.parse(localStorage.getItem("detailPage"));
+        if (myJSON != null) {
+          this.itemDetail.push(myJSON);
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("queue"));
+        if (myJSON != null) {
+          this.queues = myJSON.slice();
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("localcart"));
+        this.cart = myJSON.slice();
+
+        myUserN = JSON.parse(localStorage.getItem("unpnow"));
+        if (myUserN != null) {
+          this.user = myUserN.slice();
+        }
+
+      },
+      methods: {
+        addNum(index) {
+          if (this.cart[index].quantity < this.cart[index].stock) {
+            this.cart[index].quantity++
+          }
+
+          const myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        reduceNum(index) {
+          if (this.cart[index].quantity > 1) {
+            this.cart[index].quantity--
+
+            const myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+        },
+
+        reduceNum(index) {
+          if (this.cart[index].quantity > 1) {
+            this.cart[index].quantity--
+
+            const myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+        },
+
+        removeCart(index) {
+          this.cart.splice(index, 1);
+
+          const myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        putQueue() {
+          if (this.user.length === 0) {
+            alert('Loginดิ๊!!!!!!!');
+            window.location.href = "index.html";
+          }
+          else if (this.user[0].status) {
+            this.queues.push({user: this.user[0].username, price: this.sumPrice, item: [...this.cart]});
+            const myJSON = JSON.stringify(this.queues);
+            localStorage.setItem("queue", myJSON);
+
+            this.cart = [];
+            let myCart = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myCart);
+
+            // 
+            // const checkstock = app.stocks.findIndex((val) => {
+            //   for (let i = 0; i < app.cart.length; i++) {
+            //     if (val.id === app.cart[i].id) {
+            //       return true;
+            //     }
+            //   }
+            //   return false;
+            // });
+
+
+
+            // this.stock.indexOf(val=>val.id == this.cart.id)
+
+            window.location.href = "queue.html";
+          }
+          else {
+            alert('Loginดิ๊!!!!!!!');
+            window.location.href = "index.html";
+          }
+        },
+      },
+
+      computed: {
+        sumPrice() {
+          return this.cart.reduce((total, current) => total + parseInt(current.quantity * current.price), 0);
+        },
+
+      },
+    });
+  </script>
+  <script src="./data.js"></script>
+</body>
+
+</html>

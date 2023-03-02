@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <nav class="navbar is-success" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item">
+          <h1 class="is-size-4 has-text-weight-semibold">Detail Product</h1>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="./index.html" class="navbar-item">Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="section">
+      <div class="container">
+        <div class="columns ">
+          <div class="column is-four-fifths">
+            <div class="box has-background" v-for="(item,index) in itemDetail">
+              <article class="media">
+                <div class="media-left">
+                  <p>คงเหลือ: {{item.stock}} </p>
+                  <figure class="image is-128x128">
+                    <img :src="item.image">
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title">{{item.name}}</h1>
+                    <p class="subtitle is-5"> รายละเอียด: {{item.des}}</p>
+                    <p class="subtitle is-5"> ฿ {{item.price}}</p>
+                    <div class="level">
+                      <div class="level-left">
+                        <p class="level-item">x{{item.quantity}}</p>
+                      </div>
+                      <div class="level-right">
+
+                      </div>
+                    </div>
+                    <div>
+                      <button class="button is-success is-light" @click="addNumDetail(index)">+</button>
+                      <button class="button is-warning is-light" @click="reduceNumDetail(index)">-</button>
+                      <button class="button is-danger is-light" @click="addtoCart(item)">Update</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+          <!----------------------------------------columnตะกร้า          -->
+          <div class="column ">
+            <h3 class="title has-text-centered is-size-4">Cart</h3>
+            <h1 class="subtitle">Total</h1>
+            <div class="card" v-for="(item,index) in cart">
+              <header class="card-header">
+                <p class="card-header-title">
+                  {{item.name}}
+                </p>
+                <a href="#" class="card-header-icon" aria-label="more options">
+                  <span class="icon">
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </a>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <img :src="item.image" alt="Placeholder image" />
+                  {{item.quantity}}
+                </div>
+              </div>
+              <footer class="card-footer">
+                <a class="card-footer-item" @click="addNum(item)">+</a>
+                <a class="card-footer-item" @click="reduceNum(item)">-</a>
+                <a class="card-footer-item has-text-danger" @click="removeCart(index)">Delete</a>
+              </footer>
+            </div>
+            <!--           <a class="button is-success mt-3" style="width: 100%" @click="goCheckout">Checkout</a> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="./data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        shopName: "NoName Shop",
+        itemDetail: [],
+        cart: [],
+        products: products,
+        show_modal: false,
+      },
+
+      created() {
+        myJSON = JSON.parse(localStorage.getItem("localcart"));
+        this.cart = myJSON.slice();
+
+        myJSON = JSON.parse(localStorage.getItem("stock"));
+        if (myJSON != null) {
+          this.products = myJSON.slice()
+        }
+
+        myJSON = JSON.parse(localStorage.getItem("detailPage"));
+        this.itemDetail.push(myJSON);
+
+        // const inCart = this.cart.findIndex(
+        //   (val) => val.id === this.itemDetail[0].id
+        // );
+        // if (inCart != -1) {
+        //   this.itemDetail[0].quantity = this.cart[inCart].quantity;
+        // }
+      },
+
+      methods: {
+        // addtoCart(item) {
+        //   const checkCart = this.cart.findIndex(
+        //     (val) => val.id === item.id
+        //   );
+        //   console.log(checkCart);
+        //   if (checkCart == -1) {
+        //     if (item.quantity != 0) {
+        //       this.cart.push({...item});
+        //     }
+        //   } else {
+        //     if (item.quantity == 0) {
+        //       this.cart.splice(checkCart, 1,);
+        //     }
+        //     else {
+        //       this.cart[checkCart].quantity = item.quantity;
+        //     }
+        //   }
+        //   const myJSON = JSON.stringify(this.cart);
+        //   localStorage.setItem("localcart", myJSON);
+        // },
+
+        addtoCart(item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === item.id
+          );
+
+          if (checkCart == -1 && this.products[checkStock].stock != 0 && item.quantity != 0) {
+            this.cart.push({...item});
+            this.products[checkStock].stock--;
+            this.itemDetail[0].stock = this.products[checkStock].stock;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.itemDetail);
+            localStorage.setItem("detailPage", myJSON)
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+          else if (item.quantity == 0) {
+            this.cart.splice(checkCart, 1,);
+          }
+          else if (this.cart[checkCart].quantity < this.cart[checkCart].stock) {
+            this.products[checkStock].stock -= (item.quantity - this.cart[checkCart].quantity);
+            this.itemDetail[0].stock = this.products[checkStock].stock;
+            this.cart[checkCart].quantity = item.quantity;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.itemDetail);
+            localStorage.setItem("detailPage", myJSON)
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.itemDetail);
+          localStorage.setItem("detailPage", myJSON)
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        addNumDetail(index) {
+          this.itemDetail[index].quantity++
+
+        },
+
+        reduceNumDetail(index) {
+          if (this.itemDetail[index].quantity > 1) {
+            this.itemDetail[index].quantity--
+
+          }
+        },
+
+        removeCart(index) {
+          this.cart.splice(index, 1);
+
+          const myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        // addNum(index) {
+        //   this.cart[index].quantity++
+
+        //   const myJSON = JSON.stringify(this.cart);
+        //   localStorage.setItem("localcart", myJSON);
+        // },
+        // reduceNum(index) {
+        //   if (this.cart[index].quantity > 1) {
+        //     this.cart[index].quantity--
+
+        //     const myJSON = JSON.stringify(this.cart);
+        //     localStorage.setItem("localcart", myJSON);
+        //   }
+        // },
+
+        addNum(item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === item.id
+          );
+          console.log(checkStock)
+          if (this.cart[checkCart].quantity < this.cart[checkCart].stock) {
+            this.cart[checkCart].quantity++;
+            this.products[checkStock].stock--;
+            this.itemDetail[0].stock = this.products[checkStock].stock;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.itemDetail);
+            localStorage.setItem("detailPage", myJSON)
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.itemDetail);
+          localStorage.setItem("detailPage", myJSON)
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+
+        reduceNum(item) {
+          const checkCart = this.cart.findIndex(
+            (val) => val.id === item.id
+          );
+          const checkStock = this.products.findIndex(
+            (val) => val.id === item.id
+          );
+          console.log(checkStock)
+          if (this.cart[checkCart].quantity > this.products[checkStock].stock) {
+            this.cart[checkCart].quantity--;
+            this.products[checkStock].stock++;
+            this.itemDetail[0].stock = this.products[checkStock].stock;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.itemDetail);
+            localStorage.setItem("detailPage", myJSON)
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+          else if (this.cart[checkCart].quantity <= this.products[checkStock].stock && this.cart[checkCart].quantity > 1) {
+            this.cart[checkCart].quantity--;
+            this.products[checkStock].stock++;
+            this.itemDetail[0].stock = this.products[checkStock].stock;
+            myJSON = JSON.stringify(this.products);
+            localStorage.setItem("stock", myJSON);
+
+            myJSON = JSON.stringify(this.itemDetail);
+            localStorage.setItem("detailPage", myJSON)
+
+            myJSON = JSON.stringify(this.cart);
+            localStorage.setItem("localcart", myJSON);
+          }
+
+          myJSON = JSON.stringify(this.products);
+          localStorage.setItem("stock", myJSON);
+
+          myJSON = JSON.stringify(this.itemDetail);
+          localStorage.setItem("detailPage", myJSON)
+
+          myJSON = JSON.stringify(this.cart);
+          localStorage.setItem("localcart", myJSON);
+        },
+      },
+
+      computed: {
+
+      },
+    });
+  </script>
+  <script src="./data.js"></script>
+</body>
+
+</html>
